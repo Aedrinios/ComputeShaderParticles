@@ -21,7 +21,7 @@ public class ParticleGeneration : MonoBehaviour
     private int particleCount = 1000000;
     public Material material;
     public ComputeShader computeShader;
-    private int computerId;
+    private int computeShaderId;
     ComputeBuffer particleBuffer;
     private const int WARP_SIZE = 256;
     private int mWarpCount;
@@ -44,18 +44,18 @@ public class ParticleGeneration : MonoBehaviour
             particleArray[i].life = Random.value * 5.0f;
         }
         
-
+        // A L'AIDE ANTOINE
         particleBuffer = new ComputeBuffer(particleCount, SIZE_PARTICLE);
         particleBuffer.SetData(particleArray);
-        computerId = computeShader.FindKernel("CSMain");
-        computeShader.SetBuffer(computerId, "particleBuffer", particleBuffer);
+        computeShaderId = computeShader.FindKernel("CSMain");
+        computeShader.SetBuffer(computeShaderId, "particleBuffer", particleBuffer);
         material.SetBuffer("particleBuffer", particleBuffer);
     }
 
     void OnRenderObject()
     {
         material.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, particleCount);
+        Graphics.DrawProceduralNow(MeshTopology.Triangles, 4, particleCount);
     }
 
     void OnDestroy()
@@ -69,7 +69,7 @@ public class ParticleGeneration : MonoBehaviour
         float[] mousePosition2D = { mousePosition.x, mousePosition.y };
         computeShader.SetFloat("deltaTime", Time.deltaTime);
         computeShader.SetFloats("mousePosition", mousePosition2D);
-        computeShader.Dispatch(computerId, mWarpCount, 1, 1);
+        computeShader.Dispatch(computeShaderId, mWarpCount, 1, 1);
     }
 
     void OnGUI()
